@@ -2,3 +2,4 @@ node_modules/
 dump/
 data/
 .idea
+src/libs/config/prod.json
