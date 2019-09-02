@@ -3,6 +3,7 @@
  */
 
 const Promise = require('bluebird');
+const config = require('./config');
 const rabbit = require('../../libs/rabbit');
 const uuid = require('node-uuid');
 
@@ -19,13 +20,16 @@ function defer() {
     return deferred;
 }
 
-const channel = rabbit();
-const queue = channel.then(function(ch) {
-    return ch.assertQueue('', { exclusive: true})
-        .then(function(qok) {
-            return qok.queue;
-        });
-});
+// Only run this code if a RabbitMQ url is provided.
+if (typeof config.amqp === "object" && typeof config.amqp.url === "string") {
+    const channel = rabbit();
+    const queue   = channel.then(function (ch) {
+        return ch.assertQueue('', {exclusive: true})
+            .then(function (qok) {
+                return qok.queue;
+            });
+    });
+}
 
 function handleResponse(result, corrId, ch, msg) {
     console.log('handleResponse() result: ', result);
