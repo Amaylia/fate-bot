@@ -3,7 +3,7 @@
  */
 
 const Promise = require('bluebird');
-const config = require('./config');
+const config = require('../../libs/config');
 const rabbit = require('../../libs/rabbit');
 const uuid = require('node-uuid');
 
@@ -20,8 +20,8 @@ function defer() {
     return deferred;
 }
 
-// Only run this code if a RabbitMQ url is provided.
-if (typeof config.amqp === "object" && typeof config.amqp.url === "string") {
+// Only run this code if a RabbitMQ config is present.
+if (config("amqp") && config("amqp").url.length) {
     const channel = rabbit();
     const queue   = channel.then(function (ch) {
         return ch.assertQueue('', {exclusive: true})
