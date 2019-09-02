@@ -91,11 +91,11 @@ function validateMongo(cfg) {
 
 function validateApp(cfg) {
     if (process.env.hasOwnProperty('APP_DOMAIN') && process.env.APP_DOMAIN) {
-        cfg.app_domain = process.env.APP_DOMAIN;
+        cfg.app.domain = process.env.APP_DOMAIN;
     }
-    if (!cfg.hasOwnProperty('app_domain')) {
+    if (! cfg.hasOwnProperty('app') || ! cfg.app.hasOwnProperty("domain") ) {
         console.log('validateApp() cfg, env: ', cfg, process.env);
-        throw new Error("No app_domain name configured.");
+        throw new Error("No app.domain name configured.");
     }
     return cfg;
 }

@@ -1,5 +1,8 @@
 {
-  "app_domain": "https://localhost:8080",
+  "app": {
+    "comment": "Discord calls back to this address for OAuth.  It must be publicly reachable.",
+    "domain": "https://localhost:8080"
+  },
   "amqp": {
     "comment": "If you want to use RabbitMQ, set the URI below.",
     "url": ""

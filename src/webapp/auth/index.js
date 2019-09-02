@@ -30,7 +30,7 @@ Auth.prototype.initialize = function setupAuth(app, config) {
     passport.use(new DiscordStrategy({
             clientID: bot_config.client_id,
             clientSecret: bot_config.client_secret,
-            callbackURL: config('app_domain') + '/callback',
+            callbackURL: config('app').domain + '/callback',
             scope: scopes
         },
         function (accessToken, refreshToken, profile, done) {
