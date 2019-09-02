@@ -10,49 +10,51 @@ var Charsheet = require('./charsheet');
 var Diceroller = require('./diceroller');
 
 module.exports = function (fatebot) {
-    return rabbit()
-        .then(function (ch) {
-                console.log('rabbitmq ch: ', ch);
-                var q = 'fatebot_rpc';
-                return ch.assertQueue(q, {durable: false})
-                    .then(function () {
-                        ch.prefetch(1);
-                        return ch.consume(q, handleMsg);
-                    })
-                    .then(function (ch) {
-                        console.log('Awaiting worker requests.');
-                        return ch;
-                    });
+    if (rabbit.enabled) {
+        rabbit.getConnection()
+            .then(function (ch) {
+                    console.log('rabbitmq ch: ', ch);
+                    var q = 'fatebot_rpc';
+                    return ch.assertQueue(q, {durable: false})
+                        .then(function () {
+                            ch.prefetch(1);
+                            return ch.consume(q, handleMsg);
+                        })
+                        .then(function (ch) {
+                            console.log('Awaiting worker requests.');
+                            return ch;
+                        });
 
-                function handleMsg(msg) {
-                    console.log('handleMsg() msg received from ' + q + ' queue.');
-                    var parsed_msg = JSON.parse(msg.content.toString());
-                    console.log('handleMsg() Parsed_msg: ', parsed_msg);
-                    var func_requested = parsed_msg.func;
-                    var result = Promise.resolve(false);
-                    if (message_map.hasOwnProperty(func_requested)
-                        && message_map[func_requested].hasOwnProperty('func')
-                    ) {
-                        console.log('handleMsg() function requested found in message_map.');
-                        result = message_map[func_requested].func(fatebot, parsed_msg);
-                        console.log('handleMsg() result: ', result);
-                    } else {
-                        console.log('handleMsg() function requested not found in message_map.');
-                        console.log('handleMsg() func_requested: ', func_requested);
-                        console.log('handleMsg() message_map: ', message_map);
+                    function handleMsg(msg) {
+                        console.log('handleMsg() msg received from ' + q + ' queue.');
+                        var parsed_msg = JSON.parse(msg.content.toString());
+                        console.log('handleMsg() Parsed_msg: ', parsed_msg);
+                        var func_requested = parsed_msg.func;
+                        var result = Promise.resolve(false);
+                        if (message_map.hasOwnProperty(func_requested)
+                            && message_map[func_requested].hasOwnProperty('func')
+                        ) {
+                            console.log('handleMsg() function requested found in message_map.');
+                            result = message_map[func_requested].func(fatebot, parsed_msg);
+                            console.log('handleMsg() result: ', result);
+                        } else {
+                            console.log('handleMsg() function requested not found in message_map.');
+                            console.log('handleMsg() func_requested: ', func_requested);
+                            console.log('handleMsg() message_map: ', message_map);
+                        }
+                        result.then(function(res) {
+                            ch.sendToQueue(
+                                msg.properties.replyTo,
+                                new Buffer(JSON.stringify(res)),
+                                {correlationId: msg.properties.correlationId}
+                            );
+                            ch.ack(msg);
+                        });
                     }
-                    result.then(function(res) {
-                        ch.sendToQueue(
-                            msg.properties.replyTo,
-                            new Buffer(JSON.stringify(res)),
-                            {correlationId: msg.properties.correlationId}
-                        );
-                        ch.ack(msg);
-                    });
-                }
-            },
-            console.error
-        );
+                },
+                console.error
+            );
+    }
 };
 
 function rollSkill(fatebot, msg) {
