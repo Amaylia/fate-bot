@@ -1,4 +1,9 @@
 {
+  "app_domain": "https://localhost:8080",
+  "amqp": {
+    "comment": "If you want to use RabbitMQ, set the URI below.",
+    "url": ""
+  },
   "mongo": {
     "comment": "Where's your database? (mongo.url can be overwritten by the MONGODB_URI environment variable.)",
     "url": "mongodb://localhost:27017/fatebot"
@@ -7,10 +12,12 @@
     "comment": [
       "Set these from information on https://discordapp.com/developers/applications/me page for your application",
       "bot.token can be overwritten by the DISCORD_BOT_TOKEN environment variable.",
-      "bot.client_id can be overwritten by the DISCORD_CLIENT_ID environment variable."
+      "bot.client_id can be overwritten by the DISCORD_CLIENT_ID environment variable.",
+      "bot.client_secret ... details here ..."
     ],
     "token": "YOURBOTTOKENHERE",
-    "client_id": "YOURCLIENTIDHERE"
+    "client_id": "YOURCLIENTIDHERE",
+    "client_secret": "YOURCLIENTSECRETHERE"
   },
   "dispatch": {
     "comment": "What character determines a given message is a command to the bot",
